@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b12">
+<title>TrackFlow — Semester Progress Tracker</title>
+<style>
+:root{--bg:#06080d;--panel:#0c111a;--panel2:#101722;--line:#1b2635;--text:#f4f7fb;--muted:#8d9aae;--blue:#2f8cff;--blue2:#1268dc;--cyan:#35c9ff;--danger:#ff5574;--good:#55d6a4;--shadow:0 18px 50px rgba(0,0,0,.35)}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#0d2b50 0,#06080d 35%),var(--bg);color:var(--text);font:15px Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+.app{max-width:1150px;margin:auto;padding:24px 22px 100px}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{font-size:28px;font-weight:850;letter-spacing:-1px}.brand span{color:var(--blue)}
+.icon-btn,.nav-btn,.btn{border:1px solid var(--line);background:#0c121c;color:var(--text);border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;transition:.18s}.icon-btn:hover,.nav-btn:hover,.btn:hover{border-color:#2d6fb6;transform:translateY(-1px)}.btn.primary{background:linear-gradient(135deg,#2f8cff,#1268dc);border-color:#2f8cff;box-shadow:0 8px 24px rgba(47,140,255,.2)}.btn.danger{background:#2a1018;color:#ff8299;border-color:#57202d}.btn.ghost{background:#0b1018}
+.nav{display:flex;gap:7px;overflow:auto;padding:5px;background:rgba(8,12,18,.7);border:1px solid var(--line);border-radius:15px;margin-bottom:22px;position:sticky;top:10px;z-index:10;backdrop-filter:blur(14px)}.nav-btn{border:0;background:transparent;color:var(--muted);white-space:nowrap}.nav-btn.active{background:#102b4d;color:#65b0ff;box-shadow:inset 0 0 0 1px #194d84}
+.page{display:none}.page.active{display:block}.hero{padding:4px 0 20px}.eyebrow{color:#4ea6ff;text-transform:uppercase;font-size:11px;letter-spacing:1.5px;font-weight:800}.title{font-size:31px;letter-spacing:-1px;margin:6px 0}.subtitle,.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{background:linear-gradient(180deg,rgba(16,23,34,.95),rgba(10,15,23,.95));border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.stat-label{color:var(--muted);font-size:12px}.stat{font-size:29px;font-weight:850;margin-top:8px}.stat-blue{color:#62b3ff}.stat-green{color:var(--good)}
+.progress{height:9px;background:#151e2a;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:linear-gradient(90deg,#1268dc,#35c9ff);border-radius:99px;transition:.3s}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;gap:12px}.section-head h3{margin:0;font-size:17px}.form{display:flex;gap:9px;flex-wrap:wrap}.form>*{flex:1;min-width:180px}
+input,textarea,select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:#080d15;color:var(--text);outline:none;font:inherit}input:focus,textarea:focus,select:focus{border-color:#2f8cff;box-shadow:0 0 0 3px rgba(47,140,255,.1)}textarea{min-height:130px;resize:vertical}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.row>*{min-width:0}.small{font-size:12px}.spacer{height:14px}
+.topic-card{margin-top:12px}.topic-head{display:flex;gap:12px;align-items:center}.topic-icon{width:40px;height:40px;border-radius:12px;background:#0c2847;color:#66b4ff;display:grid;place-items:center;font-weight:900}.topic-main{flex:1;min-width:0}.topic-title{font-weight:800;font-size:17px}.hours{font-weight:850;color:#62b3ff}.grade{font-weight:850;color:var(--good)}.topic-actions{display:flex;gap:6px;flex-wrap:wrap}.mini{padding:7px 9px;font-size:12px}
+.tree{margin-top:12px;padding-left:18px;border-left:1px solid #203047}.task{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #17202d}.task:last-child{border-bottom:0}.task input{width:18px;height:18px;accent-color:#2f8cff;margin-top:2px}.task-main{flex:1;min-width:0}.task-name{font-weight:750}.done{text-decoration:line-through;color:#718096}.sub-actions{display:flex;gap:5px;flex-wrap:wrap}.indent{margin-left:22px}
+.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:left;padding:11px 8px;border-bottom:1px solid #1a2533}.table th{font-size:12px;color:var(--muted);font-weight:700}.empty{text-align:center;padding:25px;color:var(--muted)}
+.time{text-align:center;font-size:76px;font-weight:900;letter-spacing:-4px;margin:20px 0;color:#eef7ff}.timer-ring{max-width:620px;margin:auto}.timer-status{text-align:center;color:#68b4ff;font-weight:700}.timer-controls{text-align:center;display:flex;justify-content:center;gap:9px;flex-wrap:wrap}.badge{display:inline-block;margin-top:5px;padding:4px 8px;border-radius:8px;background:#0c2847;color:#66b4ff;font-size:11px}
+.flash{min-height:220px;border:1px solid #20354d;border-radius:17px;background:radial-gradient(circle at 50% 0,#12345a,#0b111a 60%);display:flex;align-items:center;justify-content:center;text-align:center;padding:28px;font-size:24px;font-weight:800;cursor:pointer}.note{white-space:pre-wrap;line-height:1.55;color:#cbd5e1}.note-card{position:relative}.note-card .delete{position:absolute;right:14px;top:14px}
+.footer{text-align:center;color:#526174;font-size:12px;margin-top:28px}.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal.open{display:flex}.modal-box{width:min(620px,100%);max-height:90vh;overflow:auto;background:#0c111a;border:1px solid #26364b;border-radius:20px;padding:20px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+.notice{padding:11px 13px;border-radius:12px;background:#0c2847;color:#a9d7ff;border:1px solid #194d84}.success{background:#0c2a20;border-color:#1e5c48;color:#9ff0cf}
+@media(max-width:850px){.grid{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
+@media(max-width:520px){.app{padding:18px 14px 80px}.grid{grid-template-columns:1fr 1fr}.time{font-size:58px}.title{font-size:27px}.nav{top:5px}.topic-actions{margin-top:8px}.topic-head{align-items:flex-start}}
+
+.semester-ring-wrap{display:flex;justify-content:center;align-items:center;padding:18px 0 10px}
+.semester-ring{width:min(340px,72vw);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#1b2635 0deg 360deg);position:relative;box-shadow:0 0 0 1px var(--line),0 20px 60px rgba(0,0,0,.28)}
+.semester-ring:after{content:"";position:absolute;inset:22%;background:#0a1018;border-radius:50%;box-shadow:inset 0 0 0 1px var(--line)}
+.semester-ring-center{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;gap:5px}
+.semester-ring-center strong{font-size:32px;color:#f4f7fb}.semester-ring-center span{font-size:12px;color:var(--muted)}
+.course-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:18px}
+.legend-item{display:flex;align-items:center;gap:10px;padding:11px 12px;background:#0b111a;border:1px solid var(--line);border-radius:12px}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex:none}.legend-main{flex:1}.legend-hours{font-weight:800}.course-row{display:grid;grid-template-columns:1.5fr .7fr .7fr .7fr auto;gap:10px;align-items:center;padding:13px 0;border-bottom:1px solid #17202d}.course-row:last-child{border-bottom:0}.course-grade{color:#62b3ff;font-weight:800}.course-pending{color:#8d9aae}.course-complete{color:#63d3a4}@media(max-width:760px){.course-row{grid-template-columns:1fr 1fr}.course-row .course-actions{grid-column:1/-1}}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07111f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TrackFlow">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand">Track<span>Flow</span></div><button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">☾</button></header>
+<nav class="nav">
+<button class="nav-btn active" onclick="show('home',this)">⌂ Dashboard</button>
+<button class="nav-btn" onclick="show('topics',this)">◈ Topics</button>
+<button class="nav-btn" onclick="show('timer',this)">◷ Focus</button>
+<button class="nav-btn" onclick="show('grades',this)">★ Grades</button>
+<button class="nav-btn" onclick="show('notes',this)">✎ Notes</button>
+<button class="nav-btn" onclick="show('data',this)">⚙ Data</button>
+</nav>
+
+<main>
+<section id="home" class="page active">
+<div class="hero"><div class="eyebrow">Semester workspace</div><div class="title">Know exactly where your time goes.</div><div class="subtitle">Track every topic, task, subtask, study hour and final course grade — permanently in this browser.</div></div>
+<div class="grid">
+<div class="card"><div class="stat-label">Semester hours</div><div class="stat stat-blue" id="semesterHours">0h</div></div>
+<div class="card"><div class="stat-label">Topics</div><div class="stat" id="topicCount">0</div></div>
+<div class="card"><div class="stat-label">Completed tasks</div><div class="stat" id="done">0</div></div>
+<div class="card"><div class="stat-label">Courses graded</div><div class="stat stat-green" id="gradedCount">0</div></div>
+<div class="card"><div class="stat-label">TOTAL GPA</div><div class="stat stat-blue" id="dashboardGPA">0.00</div></div>
+</div>
+<div class="card" style="margin-top:14px"><div class="section-head"><h3>Semester progress</h3><span class="muted" id="semesterTaskText">0 tasks</span></div><div class="progress"><i id="semesterBar" style="width:0"></i></div></div>
+<div class="card" style="margin-top:14px"><div class="section-head"><h3>Hours by main topic</h3><button class="btn ghost mini" onclick="show('topics',document.querySelectorAll('.nav-btn')[1])">Manage topics</button></div><div id="topicHours"></div></div>
+<div class="card" style="margin-top:14px"><div class="section-head"><h3>Course grades</h3><button class="btn ghost mini" onclick="show('grades',document.querySelectorAll('.nav-btn')[3])">View grades</button></div><div id="gradeSummary"></div></div>
+</section>
+
+<section id="topics" class="page">
+<div class="hero"><div class="eyebrow">Unlimited hierarchy</div><div class="title">Topics & tasks</div><div class="subtitle">Create as many main topics, tasks and nested subtasks as you need. There is no fixed depth.</div></div>
+<div class="card">
+<div class="section-head"><h3>Add a main topic / course</h3></div>
+<form class="form" onsubmit="addTopic(event)">
+<input id="topicName" placeholder="e.g. Parasitology" required>
+<input id="topicCode" placeholder="Course code (optional)">
+<input id="topicCredits" type="number" min="0.5" step="0.5" placeholder="Credit hours" required>
+<button class="btn primary">Add topic / course</button>
+</form>
+</div>
+<div id="topicList"></div>
+</section>
+
+<section id="timer" class="page">
+<div class="hero"><div class="eyebrow">Deep work</div><div class="title">Focus Timer</div><div class="subtitle">Completed sessions are automatically added to the selected topic's total hours.</div></div>
+<div class="card timer-ring">
+<div class="row"><div style="flex:1"><label class="muted small">Study topic</label><select id="timerTopic"></select></div><div style="width:160px"><label class="muted small">Session length</label><select id="timerLength"><option value="25">25 min</option><option value="50">50 min</option><option value="90">90 min</option></select></div></div>
+<div class="timer-status" id="timerStatus">READY TO FOCUS</div><select id="studyCourse" style="max-width:360px;margin:14px auto 0;display:block" onchange="window.activeStudyCourseId=Number(this.value)||null"><option value="">Study time without a specific course</option></select><div class="time" id="clock">25:00</div>
+<div class="timer-controls"><button class="btn primary" onclick="startTimer()" id="timerBtn">Start session</button><button class="btn ghost" onclick="resetTimer()">Reset</button></div>
+<div class="spacer"></div><div class="notice" id="timerInfo">Choose a topic before starting a session.</div>
+</div>
+<div class="card" style="margin-top:14px"><div class="section-head"><h3>Manual study-time entry</h3></div>
+<form class="form" onsubmit="manualHours(event)"><select id="manualTopic" required></select><input id="manualHoursValue" type="number" min="0" step="0.25" placeholder="Hours" required><button class="btn primary">Add hours</button></form></div>
+</section>
+
+<section id="grades" class="page">
+<div class="hero"><div class="eyebrow">Permanent grade book</div><div class="title">Course grades</div><div class="subtitle">Enter the grade you received. It is stored with the course and included in your semester summary.</div></div>
+<div class="card"><div class="section-head"><h3>Grade a course</h3></div>
+<form class="form" onsubmit="saveGrade(event)"><select id="gradeTopic" required></select><input id="gradeValue" type="number" min="0" max="100" step="0.01" placeholder="Grade %" required><input id="gradeLetter" maxlength="5" placeholder="Letter (optional)"><button class="btn primary">Save grade permanently</button></form></div>
+<div class="card" style="margin-top:14px"><div class="section-head"><h3>Saved grades</h3><span class="muted" id="averageGrade"></span></div><div id="gradeList"></div></div>
+</section>
+
+<section id="notes" class="page">
+<div class="hero"><div class="eyebrow">Quick capture</div><div class="title">Notes</div><div class="subtitle">Keep important ideas close at hand.</div></div>
+<div class="card"><form onsubmit="addNote(event)"><input id="noteTitle" placeholder="Note title" required><textarea id="noteBody" placeholder="Write your notes..."></textarea><button class="btn primary">Save note</button></form></div>
+<div id="noteList" style="margin-top:14px"></div>
+</section>
+
+
+<section id="gpa" class="page">
+<div class="hero"><div class="eyebrow">Academic performance</div><div class="title">GPA & Course Gradebook</div>
+<div class="subtitle">Add subjects you already finished or subjects you are currently studying. Credit hours and final grades are saved permanently and included automatically in your GPA.</div></div>
+
+<div class="grid">
+<div class="card"><div class="stat-label">TOTAL GPA</div><div class="stat stat-blue" id="gpaValue">0.00</div></div>
+<div class="card"><div class="stat-label">Credits completed</div><div class="stat" id="creditsValue">0</div></div>
+<div class="card"><div class="stat-label">Total semester study time</div><div class="stat stat-blue" id="gpaSemesterHours">0h</div></div>
+<div class="card"><div class="stat-label">Completed courses</div><div class="stat" id="coursesCompleted">0</div></div>
+</div>
+
+<div class="grid2" style="margin-top:14px">
+<div class="card">
+<div class="section-head"><h3>Add a subject / course</h3></div>
+<form class="form" onsubmit="addGPACourse(event)">
+<input id="gpaCourseName" placeholder="Subject / course name" required>
+<input id="gpaCourseCode" placeholder="Course code (optional)">
+<input id="gpaCourseCredits" type="number" min="0.5" step="0.5" placeholder="Credit hours" required>
+<select id="gpaCourseGrade">
+<option value="">Still studying / no final grade</option>
+<option value="4">A — 90–100% · 4.00</option>
+<option value="3.67">A− — 85–89.99% · 3.67</option>
+<option value="3.33">B — 80–84.99% · 3.33</option>
+<option value="3">B− — 75–79.99% · 3.00</option>
+<option value="2.67">C — 70–75% · 2.67</option>
+<option value="2.33">C− — 65–70% · 2.33</option>
+<option value="2">D — 60–65% · 2.00</option>
+<option value="0">F — Less than 60% · 0.00</option>
+</select>
+<button class="btn primary">Add / update subject</button>
+</form>
+<p class="muted" style="margin-top:12px">You can enter subjects you already completed. Selecting a final grade immediately logs the grade and includes the course in GPA.</p>
+</div>
+
+<div class="card">
+<div class="section-head"><h3>GPA scale</h3></div>
+<table class="table"><thead><tr><th>Grade</th><th>Percentage</th><th>Points</th></tr></thead><tbody>
+<tr><td>A</td><td>90–100%</td><td>4.00</td></tr><tr><td>A−</td><td>85–89.99%</td><td>3.67</td></tr>
+<tr><td>B</td><td>80–84.99%</td><td>3.33</td></tr><tr><td>B−</td><td>75–79.99%</td><td>3.00</td></tr>
+<tr><td>C</td><td>70–75%</td><td>2.67</td></tr><tr><td>C−</td><td>65–70%</td><td>2.33</td></tr>
+<tr><td>D</td><td>60–65%</td><td>2.00</td></tr><tr><td>F</td><td>Less than 60%</td><td>0.00</td></tr>
+</tbody></table>
+</div>
+</div>
+
+<div class="card" style="margin-top:14px"><div class="section-head"><h3>All subjects</h3><span class="muted">Completed grades are permanently logged</span></div><div id="courseList"></div></div>
+</section>
+
+<section id="semester" class="page">
+  <div class="hero">
+    <div class="eyebrow">Study distribution</div>
+    <div class="title">Semester study hours</div>
+    <div class="subtitle">The circle divides the total hours according to how much time you spent on each course.</div>
+  </div>
+  <div class="card">
+    <div class="semester-ring-wrap">
+      <div class="semester-ring" id="semesterRing">
+        <div class="semester-ring-center">
+          <strong id="ringTotal">0h</strong>
+          <span>Total studied</span>
+        </div>
+      </div>
+    </div>
+    <div id="courseLegend" class="course-legend"></div>
+  </div>
+</section>
+
+<section id="data" class="page">
+<div class="hero"><div class="eyebrow">Your data</div><div class="title">Settings & backup</div></div>
+<div class="card"><div class="section-head"><h3>Permanent local saving</h3><span class="check" style="color:#55d6a4">● ON</span></div><p class="muted">Your topics, unlimited task tree, study hours, timer sessions, grades and notes are saved automatically in this browser using localStorage. Closing the browser does not erase them.</p><div class="row"><button class="btn primary" onclick="backup()">Export full backup</button><button class="btn ghost" onclick="document.getElementById('file').click()">Import backup</button><input id="file" type="file" accept=".json" style="display:none" onchange="restore(event)"></div></div>
+<div class="card" style="margin-top:14px"><h3>Reset TrackFlow</h3><p class="muted">Delete all saved semester data from this browser.</p><button class="btn danger" onclick="resetAll()">Reset everything</button></div>
+</section>
+</main>
+<div class="footer">TrackFlow • Private local semester progress</div>
+</div>
+
+<div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
+
+<script>
+const KEY='trackflow-semester-v3';
+const blank=()=>({topics:[],tasks:[],logs:[],notes:[],theme:'dark'});
+let s=JSON.parse(localStorage.getItem(KEY)||'null')||blank();
+s.topics=s.topics||[];s.topics.forEach(t=>{if(t.credits==null)t.credits=0});s.tasks=s.tasks||[];s.logs=s.logs||[];s.notes=s.notes||[];
+let left=1500,interval=null,timerTopicId='';
+
+function save(){localStorage.setItem(KEY,JSON.stringify(s));render()}
+function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function show(id,b){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));if(b)b.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});render()}
+function toggleTheme(){document.body.classList.toggle('light');s.theme=document.body.classList.contains('light')?'light':'dark';localStorage.setItem(KEY,JSON.stringify(s))}
+function uid(prefix='id'){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9)}
+
+function addTopic(e){
+e.preventDefault();
+const name=topicName.value.trim(), code=topicCode.value.trim(), credits=Number(topicCredits.value);
+if(!name||!credits)return;
+const existing=s.topics.find(t=>t.name.toLowerCase()===name.toLowerCase());
+if(existing){existing.code=code;existing.credits=credits}
+else s.topics.push({id:uid('topic'),name,code,credits,grade:null,created:Date.now()});
+e.target.reset();save()
+}
+function deleteTopic(id){if(!confirm('Delete this main topic and all its tasks and study-hour logs?'))return;s.topics=s.topics.filter(t=>t.id!==id);s.tasks=s.tasks.filter(t=>t.topicId!==id);s.logs=s.logs.filter(l=>l.topicId!==id);save()}
+function addTask(topicId,parentId){openTaskModal(topicId,parentId||'')}
+function openTaskModal(topicId,parentId){
+const parent=s.tasks.find(x=>x.id===parentId);
+modalBox.innerHTML='<h2 style="margin-top:0">Add task / subtask</h2><p class="muted">'+(parent?'This will be nested under: <b>'+esc(parent.name)+'</b>':'Add a task to this topic')+'</p><form onsubmit="submitTask(event,\''+topicId+'\',\''+parentId+'\')"><input id="newTaskName" placeholder="Task name" required autofocus><div class="spacer"></div><button class="btn primary">Add</button> <button type="button" class="btn ghost" onclick="closeModal()">Cancel</button></form>';
+modal.classList.add('open')
+}
+function submitTask(e,topicId,parentId){e.preventDefault();s.tasks.push({id:uid('task'),topicId,parentId:parentId||null,name:newTaskName.value.trim(),done:false,created:Date.now()});closeModal();save()}
+function closeModal(){modal.classList.remove('open')}
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal()})
+function toggleTask(id){let t=s.tasks.find(x=>x.id===id);if(t)t.done=!t.done;save()}
+function deleteTask(id){s.tasks=s.tasks.filter(t=>t.id!==id);save()}
+function renderTaskTree(topicId,parentId=null,depth=0){
+const arr=s.tasks.filter(t=>t.topicId===topicId&&(t.parentId||null)===(parentId||null));
+return arr.map(t=>'<div class="task" style="margin-left:'+Math.min(depth*18,180)+'px"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTask(\''+t.id+'\')"><div class="task-main"><div class="task-name '+(t.done?'done':'')+'">'+esc(t.name)+'</div><div class="sub-actions"><button class="btn ghost mini" onclick="addTask(\''+topicId+'\',\''+t.id+'\')">+ Subtask</button><button class="btn danger mini" onclick="deleteTask(\''+t.id+'\')">Delete</button></div></div></div>'+renderTaskTree(topicId,t.id,depth+1)).join('')
+}
+function addHours(topicId,hours,source='manual'){if(!topicId||!isFinite(hours)||hours<=0)return;s.logs.push({id:uid('log'),topicId,hours:Number(hours),source,date:new Date().toISOString()});save()}
+function manualHours(e){e.preventDefault();addHours(manualTopic.value,Number(manualHoursValue.value),'manual');e.target.reset()}
+function topicHours(id){return s.logs.filter(l=>l.topicId===id).reduce((a,l)=>a+Number(l.hours||0),0)}
+function formatHours(h){h=Number(h)||0;let whole=Math.floor(h),mins=Math.round((h-whole)*60);if(mins===60){whole++;mins=0}return whole?whole+'h '+mins+'m':mins+'m'}
+function totalHours(){return s.logs.reduce((a,l)=>a+Number(l.hours||0),0)}
+
+function saveGrade(e){
+e.preventDefault();let t=s.topics.find(x=>x.id===gradeTopic.value);if(!t)return;
+const pct=Number(gradeValue.value),points=gradePointFromPercent(pct);
+t.grade={value:pct,points,letter:gradeLetter.value.trim()||gradeLabel(points),savedAt:new Date().toISOString()};
+save();e.target.reset()
+}
+function clearGrade(id){let t=s.topics.find(x=>x.id===id);if(t&&confirm('Remove the saved grade for this course?')){t.grade=null;save()}}
+
+function startTimer(){
+if(interval){clearInterval(interval);interval=null;timerBtn.textContent='Resume';timerStatus.textContent='PAUSED';return}
+if(!timerTopic.value){alert('Select a study topic first.');return}
+timerTopicId=timerTopic.value;
+if(left<=0)left=Number(timerLength.value)*60;
+timerBtn.textContent='Pause';timerStatus.textContent='FOCUSING';
+timerInfo.textContent='Time is being tracked for '+(s.topics.find(t=>t.id===timerTopicId)?.name||'this topic')+'.';
+interval=setInterval(()=>{left--;tick();if(left<=0){clearInterval(interval);interval=null;let minutes=Number(timerLength.value);addHours(timerTopicId,minutes/60,'timer');left=Number(timerLength.value)*60;timerBtn.textContent='Start session';timerStatus.textContent='SESSION COMPLETE';alert('Focus session complete — '+minutes+' minutes added to the topic.')}},1000)
+}
+function resetTimer(){clearInterval(interval);interval=null;left=Number(timerLength.value||25)*60;timerBtn.textContent='Start session';timerStatus.textContent='READY TO FOCUS';tick()}
+function tick(){clock.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0')}
+timerLength.addEventListener('change',resetTimer)
+
+function addNote(e){e.preventDefault();s.notes.unshift({id:uid('note'),title:noteTitle.value.trim(),body:noteBody.value});e.target.reset();save()}
+function delNote(id){s.notes=s.notes.filter(x=>x.id!==id);save()}
+
+function fillSelect(id,placeholder){
+let el=document.getElementById(id);if(!el)return;let current=el.value;el.innerHTML='<option value="">'+placeholder+'</option>'+s.topics.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+(t.code?' · '+esc(t.code):'')+'</option>').join('');if(s.topics.some(t=>t.id===current))el.value=current
+}
+function renderTopics(){
+let el=document.getElementById('topicList');
+if(!s.topics.length){el.innerHTML='<div class="card empty" style="margin-top:14px">No main topics yet. Add your first course above.</div>';return}
+el.innerHTML=s.topics.map(t=>{
+let tasks=s.tasks.filter(x=>x.topicId===t.id),done=tasks.filter(x=>x.done).length,hrs=topicHours(t.id),pct=tasks.length?Math.round(done/tasks.length*100):0;
+return '<div class="card topic-card"><div class="topic-head"><div class="topic-icon">'+esc((t.name[0]||'?').toUpperCase())+'</div><div class="topic-main"><div class="topic-title">'+esc(t.name)+'</div><div class="muted small">'+esc(t.code||'Main topic')+' · '+tasks.length+' tasks · <span class="hours">'+formatHours(hrs)+'</span>'+(t.grade? ' · <span class="grade">'+esc(t.grade.value)+'%'+(t.grade.letter?' ('+esc(t.grade.letter)+')':'')+'</span>':'')+'</div></div><div class="topic-actions"><button class="btn primary mini" onclick="addTask(\''+t.id+'\')">+ Task</button><button class="btn ghost mini" onclick="openLogModal(\''+t.id+'\')">Log hours</button><button class="btn ghost mini" onclick="deleteTopic(\''+t.id+'\')">Delete</button></div></div><div style="margin-top:13px"><div class="section-head" style="margin-bottom:7px"><span class="muted small">'+done+' of '+tasks.length+' tasks complete</span><span class="muted small">'+pct+'%</span></div><div class="progress"><i style="width:'+pct+'%"></i></div></div><div class="tree">'+(renderTaskTree(t.id)||'<div class="empty">No tasks yet. Use + Task to begin.</div>')+'</div></div>'
+}).join('')
+}
+function openLogModal(topicId){
+modalBox.innerHTML='<h2 style="margin-top:0">Log study time</h2><p class="muted">Add time directly to <b>'+esc(s.topics.find(t=>t.id===topicId)?.name||'topic')+'</b>.</p><form onsubmit="submitLog(event,\''+topicId+'\')"><input id="modalHours" type="number" min="0" step="0.25" placeholder="Hours studied" required><div class="spacer"></div><button class="btn primary">Add time</button> <button type="button" class="btn ghost" onclick="closeModal()">Cancel</button></form>';
+modal.classList.add('open')
+}
+function submitLog(e,topicId){e.preventDefault();let h=Number(modalHours.value);if(h>0){s.logs.push({id:uid('log'),topicId,hours:h,source:'manual',date:new Date().toISOString()});closeModal();save()}}
+
+function renderDashboard(){
+let all=s.tasks.length,done=s.tasks.filter(t=>t.done).length,p=all?Math.round(done/all*100):0;
+semesterHours.textContent=formatHours(totalHours());topicCount.textContent=s.topics.length;document.getElementById('done').textContent=done;gradedCount.textContent=s.topics.filter(t=>t.grade).length;semesterTaskText.textContent=done+' of '+all+' tasks';semesterBar.style.width=p+'%';
+topicHours.innerHTML=s.topics.length?s.topics.map(t=>'<div style="margin:12px 0"><div class="section-head" style="margin-bottom:6px"><span>'+esc(t.name)+'</span><span class="hours">'+formatHours(topicHours(t.id))+'</span></div><div class="progress"><i style="width:'+Math.min(100,totalHours()?topicHours(t.id)/totalHours()*100:0)+'%"></i></div></div>').join(''):'<div class="empty">Your topic hours will appear here.</div>';
+gradeSummary.innerHTML=s.topics.filter(t=>t.grade).length?s.topics.filter(t=>t.grade).map(t=>'<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid #17202d"><span>'+esc(t.name)+'</span><span class="grade">'+esc(t.grade.value)+'%'+(t.grade.letter?' · '+esc(t.grade.letter):'')+'</span></div>').join(''):'<div class="empty">No course grades entered yet.</div>'
+const graded=s.topics.filter(c=>c.grade&&Number(c.credits)>0);const totalCredits=graded.reduce((a,c)=>a+Number(c.credits||0),0);const totalPoints=graded.reduce((a,c)=>a+Number(c.credits||0)*Number(c.grade.points??gradePointFromPercent(c.grade.value)),0);document.getElementById('dashboardGPA').textContent=totalCredits?(totalPoints/totalCredits).toFixed(2):'0.00';
+}
+function renderGrades(){
+fillSelect('gradeTopic','Select a course');let gs=s.topics.filter(t=>t.grade),avg=gs.length?gs.reduce((a,t)=>a+t.grade.value,0)/gs.length:0;averageGrade.textContent=gs.length?'Average: '+avg.toFixed(2)+'%':'';
+gradeList.innerHTML=gs.length?'<table class="table"><thead><tr><th>Course</th><th>Grade</th><th>Saved</th><th></th></tr></thead><tbody>'+gs.map(t=>'<tr><td>'+esc(t.name)+(t.code?' · '+esc(t.code):'')+'</td><td class="grade">'+esc(t.grade.value)+'%'+(t.grade.letter?' ('+esc(t.grade.letter)+')':'')+'</td><td class="muted small">'+new Date(t.grade.savedAt).toLocaleDateString()+'</td><td><button class="btn danger mini" onclick="clearGrade(\''+t.id+'\')">Remove</button></td></tr>').join('')+'</tbody></table>':'<div class="empty">No saved grades yet.</div>'
+}
+function renderNotes(){noteList.innerHTML=s.notes.length?s.notes.map(n=>'<div class="card note-card" style="margin-bottom:14px"><button class="btn danger delete" onclick="delNote(\''+n.id+'\')">Delete</button><h3 style="margin:0 80px 10px 0">'+esc(n.title)+'</h3><div class="note">'+esc(n.body)+'</div></div>').join(''):'<div class="card empty">No notes yet.</div>'}
+
+const COURSE_COLORS=['#2f8cff','#35c9ff','#7c6cff','#36c98f','#ffb84d','#ff6f91','#a66cff','#20c997','#e85dff','#5eead4'];
+function gradeLabel(g){
+const n=Number(g);
+if(n===4)return 'A';if(n===3.67)return 'A-';if(n===3.33)return 'B';if(n===3)return 'B-';
+if(n===2.67)return 'C';if(n===2.33)return 'C-';if(n===2)return 'D';if(n===0)return 'F';return '';
+}
+function addGPACourse(e){
+e.preventDefault();
+const name=gpaCourseName.value.trim(),code=gpaCourseCode.value.trim(),credits=Number(gpaCourseCredits.value),grade=gpaCourseGrade.value;
+if(!name||!credits)return;
+let c=s.topics.find(t=>t.name.toLowerCase()===name.toLowerCase());
+if(!c){c={id:uid('topic'),name,code,credits,grade:null,created:Date.now()};s.topics.push(c)}
+else{c.code=code;c.credits=credits}
+if(grade!=='')c.grade={value:Number(grade),points:Number(grade),letter:gradeLabel(grade),savedAt:new Date().toISOString()};
+save();e.target.reset()
+}
+function deleteCourse(id){
+if(confirm('Delete this subject and all its tasks and study-hour records?'))deleteTopic(id)
+}
+function addCourseHours(id){
+const c=s.topics.find(x=>x.id===id);if(!c)return;
+const v=prompt('How many study hours should be added to '+c.name+'?','1');
+if(v!==null){const n=Number(v);if(Number.isFinite(n)&&n>=0)addHours(id,n,'manual')}
+}
+function gradePointFromPercent(v){
+const n=Number(v);if(n>=90)return 4;if(n>=85)return 3.67;if(n>=80)return 3.33;if(n>=75)return 3;if(n>=70)return 2.67;if(n>=65)return 2.33;if(n>=60)return 2;return 0
+}
+function renderGPA(){
+const completed=s.topics.filter(c=>c.grade&&c.credits>0);
+const totalCredits=completed.reduce((a,c)=>a+Number(c.credits||0),0);
+const points=completed.reduce((a,c)=>a+Number(c.credits||0)*Number(c.grade.points??gradePointFromPercent(c.grade.value)),0);
+const gpa=totalCredits?points/totalCredits:0;
+const totalHours=s.topics.reduce((a,c)=>a+topicHours(c.id),0);
+document.getElementById('gpaValue').textContent=gpa.toFixed(2);
+document.getElementById('creditsValue').textContent=totalCredits;
+document.getElementById('gpaSemesterHours').textContent=formatHours(totalHours);
+document.getElementById('coursesCompleted').textContent=completed.length;
+const list=document.getElementById('courseList');
+list.innerHTML=s.topics.length?s.topics.map(c=>`
+<div class="course-row">
+<div><strong>${esc(c.name)}</strong><div class="muted">${esc(c.code||'')}${c.code?' · ':''}${Number(c.credits||0)} credit hour${Number(c.credits||0)===1?'':'s'}</div></div>
+<div>${formatHours(topicHours(c.id))}</div>
+<div class="${c.grade?'course-grade':'course-pending'}">${c.grade?(c.grade.letter||gradeLabel(c.grade.points)):'In progress'}</div>
+<div>${c.grade?Number(c.grade.points??gradePointFromPercent(c.grade.value)).toFixed(2):'—'}</div>
+<div class="course-actions"><button class="btn ghost" onclick="addCourseHours('${c.id}')">+ Hours</button> <button class="btn danger" onclick="deleteCourse('${c.id}')">Delete</button></div>
+</div>`).join(''):'<div class="empty">No subjects yet. Add a subject above, including subjects you already completed.</div>';
+renderSemesterRing()
+}
+function renderSemesterRing(){
+const entries=s.topics.map((c,i)=>({c,i,h:topicHours(c.id)})).filter(x=>x.h>0);
+const total=entries.reduce((a,x)=>a+x.h,0);
+const ring=document.getElementById('semesterRing'),legend=document.getElementById('courseLegend');
+document.getElementById('ringTotal').textContent=formatHours(total);
+if(!total){ring.style.background='conic-gradient(#1b2635 0deg 360deg)';legend.innerHTML='<div class="empty">Add study hours to your subjects to build the semester chart.</div>';return}
+let angle=0,parts=[];
+entries.forEach(x=>{const next=angle+(x.h/total)*360;parts.push(`${COURSE_COLORS[x.i%COURSE_COLORS.length]} ${angle}deg ${next}deg`);angle=next});
+ring.style.background=`conic-gradient(${parts.join(',')})`;
+legend.innerHTML=entries.map(x=>`<div class="legend-item"><span class="legend-dot" style="background:${COURSE_COLORS[x.i%COURSE_COLORS.length]}"></span><div class="legend-main"><strong>${esc(x.c.name)}</strong><div class="muted">${(x.h/total*100).toFixed(1)}% of semester study time</div></div><span class="legend-hours">${formatHours(x.h)}</span></div>`).join('')
+}
+
+function render(){
+renderDashboard();renderTopics();renderGrades();renderNotes();renderGPA();fillSelect('timerTopic','Select a topic');fillSelect('manualTopic','Select a topic');tick()
+}
+function backup(){let b=new Blob([JSON.stringify(s,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='trackflow-semester-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x||!Array.isArray(x.topics)||!Array.isArray(x.tasks)||!Array.isArray(x.logs)||!Array.isArray(x.notes))throw 0;s=x;save();alert('Full semester backup restored.')}catch{alert('Invalid TrackFlow backup.')}};r.readAsText(f);e.target.value=''}
+function resetAll(){if(confirm('Delete ALL TrackFlow semester data? This cannot be undone unless you have an exported backup.')){s=blank();save()}}
+tick();render();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(console.error);
+  });
+}
+</script>
+
+</body>
+</html>
